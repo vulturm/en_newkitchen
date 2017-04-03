@@ -46,10 +46,12 @@ SCRIPT
 
 install_TERRAFORM = <<SCRIPT
 echo "Installing Terraform ..."
-mkdir -p /opt/terraform
-wget https://releases.hashicorp.com/terraform/#{TERRAFORM_release}/terraform_#{TERRAFORM_release}_linux_amd64.zip -O /opt/terraform/terraform_#{TERRAFORM_release}_linux_amd64.zip
-cd /opt/terraform && unzip terraform_#{TERRAFORM_release}_linux_amd64.zip
-chown -R vagrant:vagrant /opt/terraform
+terraformDir=/opt/terraform
+mkdir -p $terraformDir
+wget https://releases.hashicorp.com/terraform/#{TERRAFORM_release}/terraform_#{TERRAFORM_release}_linux_amd64.zip -O ${terraformDir}/terraform_#{TERRAFORM_release}_linux_amd64.zip
+cd ${terraformDir} && unzip terraform_#{TERRAFORM_release}_linux_amd64.zip
+chown -R vagrant:vagrant ${terraformDir}
+ln -s ${terraformDir}/terraform /usr/bin/terraform
 SCRIPT
 
 
