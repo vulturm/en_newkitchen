@@ -51,7 +51,7 @@ mkdir -p $terraformDir
 wget https://releases.hashicorp.com/terraform/#{TERRAFORM_release}/terraform_#{TERRAFORM_release}_linux_amd64.zip -O /opt/terraform_#{TERRAFORM_release}_linux_amd64.zip
 unzip -q -o /opt/terraform_#{TERRAFORM_release}_linux_amd64.zip -d ${terraformDir}
 chown -R vagrant:vagrant ${terraformDir}
-ln -s ${terraformDir}/terraform /usr/bin/terraform
+ln -sf ${terraformDir}/terraform /usr/bin/terraform
 SCRIPT
 
 
