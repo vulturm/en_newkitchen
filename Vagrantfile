@@ -7,6 +7,7 @@ Vagrant.require_version '>= 1.8.0'
 #-- software versions
 EPEL_release = 'latest'
 CHEFDK_release = '1.2.20'
+TERRAFORM_release = '0.9.2'
 
 ####### SCRIPTS
 install_BASE = <<SCRIPT
@@ -43,6 +44,15 @@ echo -e 'export DOCKER_HOST=tcp://127.0.0.1:2375\nunset DOCKER_CERT_PATH\nunset 
 echo -e 'Run:\n  export DOCKER_HOST=tcp://127.0.0.1:2375 && unset DOCKER_CERT_PATH && unset DOCKER_TLS_VERIFY\nto use docker on the host machine'
 SCRIPT
 
+install_TERRAFORM = <<SCRIPT
+echo "Installing Terraform ..."
+mkdir -p /opt/terraform
+wget https://releases.hashicorp.com/terraform/#{TERRAFORM_release}/terraform_#{TERRAFORM_release}_linux_amd64.zip -O /opt/terraform/terraform_#{TERRAFORM_release}_linux_amd64.zip
+cd /opt/terraform && unzip terraform_#{TERRAFORM_release}_linux_amd64.zip
+chown -R vagrant:vagrant /opt/terraform
+SCRIPT
+
+
 ### VMs
 VIRTUAL_MACHINES = {
   workstation: {
@@ -52,10 +62,11 @@ VIRTUAL_MACHINES = {
     private_ip: '192.168.100.30',
     environment: 'DevOps',
     shell_script: [ 
-		install_BASE,
-		install_DEV,
-		install_chefDK,
-		install_DOCKER
+      install_BASE,
+      install_DEV,
+      install_chefDK,
+      install_TERRAFORM,
+      install_DOCKER
 		]
   },
   node2test: {
@@ -65,7 +76,7 @@ VIRTUAL_MACHINES = {
     private_ip: '192.168.100.21',
     environment: 'DevOps',
     shell_script: [
-		install_BASE
+      install_BASE
 	]
   },
 }.freeze
