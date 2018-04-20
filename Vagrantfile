@@ -66,7 +66,6 @@ VIRTUAL_MACHINES = {
     shell_script: [ 
       install_BASE,
       install_DEV,
-      install_chefDK,
       install_TERRAFORM,
       install_DOCKER
 		]
