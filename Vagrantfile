@@ -82,10 +82,23 @@ VIRTUAL_MACHINES = {
   },
 }.freeze
 
+#-- prerequisites
+required_plugins = %w( vagrant-vbguest )
+if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil then
+	#-- nfs sharing
+	required_plugins.push('vagrant-winnfsd')
+end
+
+required_plugins.each do |plugin|
+  system "vagrant plugin install #{plugin}" unless Vagrant.has_plugin? plugin
+end
+
 Vagrant.configure(2) do |config|
   config.vm.box = 'centos/7'
 #  config.omnibus.chef_version = '12.8.1'
-  config.vbguest.auto_update = false
+  if Vagrant.has_plugin?("vagrant-vbguest")
+    config.vbguest.auto_update = false
+  end
 
   VIRTUAL_MACHINES.each do |name, cfg|
     config.vm.define name do |vm_config|
