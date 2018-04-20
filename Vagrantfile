@@ -59,8 +59,8 @@ SCRIPT
 VIRTUAL_MACHINES = {
   workstation: {
     hostname: 'workstation.local.lo',
-    cpus: 2,
-    memory: 3500,
+    cpus: 4,
+    memory: 4096,
     private_ip: '192.168.100.30',
     environment: 'DevOps',
     shell_script: [ 
