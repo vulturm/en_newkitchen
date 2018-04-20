@@ -26,7 +26,7 @@ SCRIPT
 
 install_DEV = <<SCRIPT
 echo "Installing DEV ..."
-yum install -y mc vim-enhanced git svn patch unzip gcc ruby rubygems curl bash-completion strace telnet bind-utils tcpdump nc traceroute telnet whois
+yum install -y mc vim-enhanced git svn patch unzip gcc ruby rubygems curl bash-completion strace telnet bind-utils tcpdump nc traceroute telnet whois wget
 SCRIPT
 
 install_chefDK = <<SCRIPT
