@@ -20,8 +20,8 @@ echo 1>/proc/sys/net/ipv6/conf/all/disable_ipv6
 echo "search local" > /etc/resolv.conf
 echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 mv /etc/hosts /etc/hosts.old
-echo "192.168.100.20 node1test" > /etc/hosts
-echo "192.168.100.21 node2test" >> /etc/hosts
+echo "192.168.199.20 node1test" > /etc/hosts
+echo "192.168.199.21 node2test" >> /etc/hosts
 SCRIPT
 
 install_DEV = <<SCRIPT
@@ -61,7 +61,7 @@ VIRTUAL_MACHINES = {
     hostname: 'workstation.local.lo',
     cpus: 4,
     memory: 4096,
-    private_ip: '192.168.100.30',
+    private_ip: '192.168.199.30',
     environment: 'DevOps',
     shell_script: [ 
       install_BASE,
@@ -74,7 +74,7 @@ VIRTUAL_MACHINES = {
     hostname: 'node2test.local.lo',
     cpus: 2,
     memory: 1024,
-    private_ip: '192.168.100.21',
+    private_ip: '192.168.199.21',
     environment: 'DevOps',
     shell_script: [
       install_BASE
@@ -94,8 +94,9 @@ required_plugins.each do |plugin|
 end
 
 Vagrant.configure(2) do |config|
-  config.vm.box = 'centos/7'
-#  config.omnibus.chef_version = '12.8.1'
+#  config.vm.box = 'centos/7'
+  config.vm.box = 'centos/6'
+  #  config.omnibus.chef_version = '12.8.1'
   if Vagrant.has_plugin?("vagrant-vbguest")
     config.vbguest.auto_update = false
   end
