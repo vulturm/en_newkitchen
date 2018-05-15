@@ -8,6 +8,7 @@ Vagrant.require_version '>= 1.8.0'
 EPEL_release = 'latest'
 CHEFDK_release = '1.2.20'
 TERRAFORM_release = '0.9.2'
+SHELLCHECK_release =  'v0.4.6'
 
 ####### SCRIPTS
 install_BASE = <<SCRIPT
@@ -54,6 +55,15 @@ chown -R vagrant:vagrant ${terraformDir}
 ln -sf ${terraformDir}/terraform /usr/bin/terraform
 SCRIPT
 
+install_BASH = <<SCRIPT
+echo "Installing Bash Development Environment ..."
+shellcheckDir=/opt/shellcheck
+mkdir -p $shellcheckDir
+wget https://github.com/xxmitsu/dev_bin/blob/master/shellcheck-#{SHELLCHECK_release}.linux.x86_64.tar.xz?raw=true -O ${shellcheckDir}/shellcheck-#{SHELLCHECK_release}.linux.x86_64.tar.xz
+cd ${shellcheckDir} && tar xxf shellcheck-#{SHELLCHECK_release}.linux.x86_64.tar.xz
+chown -R vagrant:vagrant ${shellcheckDir}
+ln -sf ${shellcheckDir}/shellcheck-#{SHELLCHECK_release}/shellcheck /usr/bin/shellcheck
+SCRIPT
 
 ### VMs
 VIRTUAL_MACHINES = {
@@ -67,6 +77,7 @@ VIRTUAL_MACHINES = {
       install_BASE,
       install_DEV,
       install_TERRAFORM,
+      install_BASH,
       install_DOCKER
 		]
   },
