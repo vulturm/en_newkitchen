@@ -5,7 +5,6 @@
 Vagrant.require_version '>= 1.8.0'
 
 #-- software versions
-EPEL_release = 'latest'
 CHEFDK_release = '1.2.20'
 TERRAFORM_release = '0.9.2'
 SHELLCHECK_release =  'v0.4.6'
@@ -13,7 +12,7 @@ SHELLCHECK_release =  'v0.4.6'
 ####### SCRIPTS
 install_BASE = <<SCRIPT
 echo "Installing base ..."
-yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-#{EPEL_release}-7.noarch.rpm redhat-lsb
+yum install -y epel-release redhat-lsb
 true
 #Disable IPV6
 echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
