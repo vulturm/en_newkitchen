@@ -64,6 +64,12 @@ chown -R vagrant:vagrant ${shellcheckDir}
 ln -sf ${shellcheckDir}/shellcheck-#{SHELLCHECK_release}/shellcheck /usr/bin/shellcheck
 SCRIPT
 
+install_ANSIBLE = <<SCRIPT
+echo "Installing Ansible Development Environment ..."
+yum -y install ansible ansible-doc ansible-lint ansible-review standard-test-roles
+SCRIPT
+
+
 ### VMs
 VIRTUAL_MACHINES = {
   workstation: {
@@ -87,7 +93,9 @@ VIRTUAL_MACHINES = {
     private_ip: '192.168.199.21',
     environment: 'DevOps',
     shell_script: [
-      install_BASE
+      install_BASE,
+      install_DEV,
+      install_ANSIBLE
 	]
   },
 }.freeze
