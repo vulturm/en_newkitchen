@@ -26,6 +26,7 @@ echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 mv /etc/hosts /etc/hosts.old
 echo "192.168.199.20 node1test" > /etc/hosts
 echo "192.168.199.21 node2test" >> /etc/hosts
+echo "127.0.0.1 $(cat /etc/hostname)" >> /etc/hosts
 SCRIPT
 
 install_DEV = <<SCRIPT
@@ -73,13 +74,47 @@ echo "Installing Ansible Development Environment ..."
 yum -y install ansible ansible-doc ansible-lint ansible-review standard-test-roles
 SCRIPT
 
+install_ICINGA = <<SCRIPT
+echo "Installing Icinga Test Environment ..."
+wget https://packages.icinga.com/epel/ICINGA-release.repo -O /etc/yum.repos.d/CINGA-release.repo
+#-- prerequisites
+yum install -y httpd gcc glibc glibc-common gd gd-devel
+#-- dbi
+yum install -y mysql mysql-server libdbi libdbi-devel libdbi-drivers libdbi-dbd-mysql
+service mysqld start
+chkconfig mysqld on
+
+#-- plugins
+yum install -y nagios-plugins-nrpe nagios-plugins-all nsca perl-snmp
+
+#-- icinga
+yum -y install icinga-1.14.0-0.el6.x86_64 icinga-gui-config-1.14.0-0.el6.x86_64 icinga-idoutils-libdbi-mysql-1.14.0-0.el6.x86_64 icinga-doc-1.14.0-0.el6.x86_64 icinga-gui-1.14.0-0.el6.x86_64 icinga-idoutils-1.14.0-0.el6.x86_64 libwmf libwmf-lite 
+
+#-- postconfig
+mkdir -p /dev/shm/icinga/{tmp,checkresults}
+chown -R icinga:icinga /dev/shm/icinga/
+chmod 777 /dev/shm/icinga/{tmp,checkresults}
+echo "CREATE DATABASE IF NOT EXISTS icinga;" | mysql -uroot
+echo "GRANT USAGE ON *.* TO 'icinga'@'localhost' IDENTIFIED BY PASSWORD '*F7EA22C777E1A8D2E1F61A2F9EBBD74FF489FF63';" | mysql -uroot
+echo "GRANT ALL PRIVILEGES ON icinga.* TO 'icinga'@'localhost' WITH GRANT OPTION;" | mysql -uroot
+mysql -uicinga -picinga icinga < /usr/share/doc/icinga-idoutils-libdbi-mysql-1.14.0/db/mysql/mysql.sql
+
+#-- start
+chkconfig icinga on
+chkconfig httpd on
+chkconfig ido2db on
+service ido2db restart
+service icinga restart
+service httpd restart
+SCRIPT
+
 
 ### VMs
 VIRTUAL_MACHINES = {
   workstation: {
     hostname: 'workstation.local.lo',
     cpus: 4,
-    memory: 4096,
+    memory: 2048,
     private_ip: '192.168.199.30',
     environment: 'DevOps',
     shell_script: [ 
@@ -102,6 +137,30 @@ VIRTUAL_MACHINES = {
       install_ANSIBLE
 	]
   },
+  icinga2test: {
+    hostname: 'icinga2test.local.lo',
+    cpus: 2,
+    memory: 1500,
+    private_ip: '192.168.199.22',
+    environment: 'DevOps',
+    shell_script: [
+      install_BASE,
+      install_DEV,
+      install_ICINGA
+	]
+  },
+  centos7test: {
+    hostname: 'centos7test.local.lo',
+    cpus: 2,
+    memory: 1000,
+    private_ip: '192.168.199.23',
+    environment: 'DevOps',
+    shell_script: [
+      install_BASE,
+      install_DEV
+	]
+  },
+
 }.freeze
 
 #-- prerequisites
