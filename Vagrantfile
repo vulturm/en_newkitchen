@@ -14,6 +14,10 @@ install_BASE = <<SCRIPT
 echo "Installing base ..."
 yum install -y epel-release redhat-lsb
 true
+#-- we don't need selinux in dev environments
+setenforce 0
+sed -i 's#^SELINUX=.*#SELINUX=permissive#g' /etc/selinux/config
+
 #Disable IPV6
 echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
 echo 1>/proc/sys/net/ipv6/conf/all/disable_ipv6
