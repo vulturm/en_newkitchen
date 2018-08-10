@@ -143,8 +143,8 @@ VIRTUAL_MACHINES = {
   },
   icinga2test: {
     hostname: 'icinga2test.local.lo',
-    cpus: 2,
-    memory: 1500,
+    cpus: 1,
+    memory: 1024,
     private_ip: '192.168.199.22',
     environment: 'DevOps',
     shell_script: [
