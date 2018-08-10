@@ -27,6 +27,10 @@ mv /etc/hosts /etc/hosts.old
 echo "192.168.199.20 node1test" > /etc/hosts
 echo "192.168.199.21 node2test" >> /etc/hosts
 echo "127.0.0.1 $(cat /etc/hostname)" >> /etc/hosts
+
+#-- fix VM time offset when we suspend the host where the VM is running in
+echo "sudo ntpdate pool.ntp.org 2>&1 >/dev/null" >> ~/.bashrc
+chkconfig ntpd off
 SCRIPT
 
 install_DEV = <<SCRIPT
