@@ -8,6 +8,7 @@ Vagrant.require_version '>= 1.8.0'
 CHEFDK_release = '1.2.20'
 TERRAFORM_release = '0.9.2'
 SHELLCHECK_release =  'v0.4.6'
+PACKER_release = '1.3.2'
 
 ####### SCRIPTS
 install_BASE = <<SCRIPT
@@ -63,11 +64,22 @@ chown -R vagrant:vagrant ${terraformDir}
 ln -sf ${terraformDir}/terraform /usr/bin/terraform
 SCRIPT
 
+install_PACKER = <<SCRIPT
+echo "Installing Packer ..."
+packerDir=/opt/packer
+mkdir -p $packerDir
+wget --content-dis -k https://releases.hashicorp.com/packer/#{PACKER_release}/packer_#{PACKER_release}_linux_amd64.zip -O /opt/packer_#{PACKER_release}_linux_amd64.zip
+unzip -q -o /opt/packer_#{PACKER_release}_linux_amd64.zip -d ${packerDir}
+chown -R vagrant:vagrant ${packerDir}
+ln -sf ${packerDir}/packer /usr/bin/packer
+SCRIPT
+
+
 install_BASH = <<SCRIPT
 echo "Installing Bash Development Environment ..."
 shellcheckDir=/opt/shellcheck
 mkdir -p $shellcheckDir
-wget https://github.com/xxmitsu/dev_bin/blob/master/shellcheck-#{SHELLCHECK_release}.linux.x86_64.tar.xz?raw=true -O ${shellcheckDir}/shellcheck-#{SHELLCHECK_release}.linux.x86_64.tar.xz
+wget -k https://github.com/xxmitsu/dev_bin/blob/master/shellcheck-#{SHELLCHECK_release}.linux.x86_64.tar.xz?raw=true -O ${shellcheckDir}/shellcheck-#{SHELLCHECK_release}.linux.x86_64.tar.xz
 cd ${shellcheckDir} && tar xxf shellcheck-#{SHELLCHECK_release}.linux.x86_64.tar.xz
 chown -R vagrant:vagrant ${shellcheckDir}
 ln -sf ${shellcheckDir}/shellcheck-#{SHELLCHECK_release}/shellcheck /usr/bin/shellcheck
@@ -125,6 +137,7 @@ VIRTUAL_MACHINES = {
       install_BASE,
       install_DEV,
       install_TERRAFORM,
+      install_PACKER,
       install_BASH,
       install_DOCKER
 		]
