@@ -31,12 +31,11 @@ echo "127.0.0.1 $(cat /etc/hostname)" >> /etc/hosts
 
 #-- fix VM time offset when we suspend the host where the VM is running in
 echo "sudo ntpdate pool.ntp.org 2>&1 >/dev/null" >> ~/.bashrc
-chkconfig ntpd off
 SCRIPT
 
 install_DEV = <<SCRIPT
 echo "Installing DEV ..."
-yum install -y mc vim-enhanced git svn patch unzip gcc ruby rubygems curl bash-completion strace telnet bind-utils tcpdump nc traceroute telnet whois wget pwkickstart
+yum install -y tmux mc vim-enhanced git svn patch unzip gcc ruby rubygems curl bash-completion strace telnet bind-utils tcpdump nc traceroute telnet whois wget pwkickstart
 SCRIPT
 
 install_chefDK = <<SCRIPT
@@ -128,6 +127,7 @@ SCRIPT
 ### VMs
 VIRTUAL_MACHINES = {
   workstation: {
+    vm_box: 'centos/7',
     hostname: 'workstation.local.lo',
     cpus: 4,
     memory: 2048,
@@ -138,11 +138,13 @@ VIRTUAL_MACHINES = {
       install_DEV,
       install_TERRAFORM,
       install_PACKER,
+      install_ANSIBLE,
       install_BASH,
       install_DOCKER
 		]
   },
   node2test: {
+    vm_box: 'centos/7',
     hostname: 'node2test.local.lo',
     cpus: 2,
     memory: 1024,
@@ -155,6 +157,7 @@ VIRTUAL_MACHINES = {
 	]
   },
   icinga2test: {
+    vm_box: 'centos/6',
     hostname: 'icinga2test.local.lo',
     cpus: 1,
     memory: 1024,
@@ -167,6 +170,7 @@ VIRTUAL_MACHINES = {
 	]
   },
   centos7test: {
+    vm_box: 'centos/7',
     hostname: 'centos7test.local.lo',
     cpus: 2,
     memory: 1000,
@@ -192,14 +196,13 @@ required_plugins.each do |plugin|
 end
 
 Vagrant.configure(2) do |config|
-#  config.vm.box = 'centos/7'
-  config.vm.box = 'centos/6'
   #  config.omnibus.chef_version = '12.8.1'
   if Vagrant.has_plugin?("vagrant-vbguest")
     config.vbguest.auto_update = false
   end
 
   VIRTUAL_MACHINES.each do |name, cfg|
+    config.vm.box = cfg[:vm_box]
     config.vm.define name do |vm_config|
       # private net between
       vm_config.vm.network 'private_network', virtualbox__intnet: 'intnet'
