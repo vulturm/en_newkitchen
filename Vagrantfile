@@ -6,9 +6,10 @@ Vagrant.require_version '>= 1.8.0'
 
 #-- software versions
 CHEFDK_release = '1.2.20'
-TERRAFORM_release = '0.9.2'
+TERRAFORM_release = '0.11.10'
 SHELLCHECK_release =  'v0.4.6'
 PACKER_release = '1.3.2'
+OPENSTACK_release = '3.17'
 
 ####### SCRIPTS
 install_BASE = <<SCRIPT
@@ -73,6 +74,11 @@ chown -R vagrant:vagrant ${packerDir}
 ln -sf ${packerDir}/packer /usr/bin/packer
 SCRIPT
 
+install_OPENSTACK = <<SCRIPT
+echo "Installing OpenStack Client ..."
+yum install -y python-devel python-pip
+pip install python-openstackclient==#{OPENSTACK_release}
+SCRIPT
 
 install_BASH = <<SCRIPT
 echo "Installing Bash Development Environment ..."
@@ -139,9 +145,10 @@ VIRTUAL_MACHINES = {
       install_TERRAFORM,
       install_PACKER,
       install_ANSIBLE,
+      install_OPENSTACK,
       install_BASH,
       install_DOCKER
-		]
+    ]
   },
   node2test: {
     vm_box: 'centos/7',
@@ -154,7 +161,7 @@ VIRTUAL_MACHINES = {
       install_BASE,
       install_DEV,
       install_ANSIBLE
-	]
+    ]
   },
   icinga2test: {
     vm_box: 'centos/6',
@@ -167,7 +174,7 @@ VIRTUAL_MACHINES = {
       install_BASE,
       install_DEV,
       install_ICINGA
-	]
+    ]
   },
   centos7test: {
     vm_box: 'centos/7',
@@ -179,7 +186,7 @@ VIRTUAL_MACHINES = {
     shell_script: [
       install_BASE,
       install_DEV
-	]
+    ]
   },
 
 }.freeze
