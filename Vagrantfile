@@ -10,11 +10,11 @@ VAGRANTFILE_API_VERSION = "2"
 GLOBAL_CONFIGS = {
   #-- Pin those versions
   software_versions: {
-    Chef_DK: '1.2.20',
-    Terraform: '0.11.10',
-    Packer: '1.3.2',
+    Chef_DK:       '1.2.20',
+    Terraform:     '0.11.10',
+    Packer:        '1.3.2',
     OpenStack_cli: '3.17',
-    ShellCheck: 'v0.4.6'
+    ShellCheck:    'v0.4.6'
   },
   #-- customize with those
   transfer_local_files: {
@@ -37,6 +37,11 @@ end
 required_plugins.each do |plugin|
   system "vagrant plugin install #{plugin}" unless Vagrant.has_plugin? plugin
 end
+
+def file_dir_or_symlink_exists?(path_to_file)
+  File.exist?(File.expand_path(path_to_file)) || File.symlink?(File.expand_path(path_to_file))
+end
+
 
 ####### SCRIPTS
 install_BASE = <<SCRIPT
@@ -247,12 +252,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.customize ['modifyvm', :id, '--hwvirtex', 'on']
       end
       #--
-      vm_config.vm.provision 'shell', inline: 'mkdir -p ~/.ssh && chmod 700 ~/.ssh'
       if GLOBAL_CONFIGS[:transfer_local_files]
         GLOBAL_CONFIGS[:transfer_local_files].each do |src_name, dst_name|
-          puts "#{src_name}"
-          puts "#{File.exist?(src_name)}"
-          vm_config.vm.provision 'file', source: src_name, destination: dst_name if File.exist?(src_name)
+          vm_config.vm.provision 'file', source: File.expand_path(src_name), destination: dst_name if file_dir_or_symlink_exists?(src_name)
         end
       end
       #--
