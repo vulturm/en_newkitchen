@@ -11,7 +11,7 @@ GLOBAL_CONFIGS = {
   #-- Pin those versions
   software_versions: {
     Chef_DK:       '1.2.20',
-    Terraform:     '0.11.10',
+    Terraform:     '0.11.11',
     Packer:        '1.3.2',
     OpenStack_cli: '3.17',
     ShellCheck:    'v0.4.6'
