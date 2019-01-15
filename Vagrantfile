@@ -66,7 +66,7 @@ SCRIPT
 #--
 install_DEV = <<SCRIPT
   echo "Installing DEV ..."
-  yum install -y tmux mc vim-enhanced git svn patch unzip gcc ruby rubygems curl bash-completion strace telnet bind-utils tcpdump nc traceroute telnet whois wget pwkickstart
+  yum install -y tmux mc vim-enhanced git svn patch unzip gcc ruby rubygems curl bash-completion strace telnet bind-utils tcpdump nc traceroute telnet whois wget pwkickstart python-boto3
 SCRIPT
 
 #--
