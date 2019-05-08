@@ -79,9 +79,15 @@ SCRIPT
 #--
 install_DOCKER = <<SCRIPT
   echo "Installing Docker ..."
-  yum install -y docker
+  wget https://download.docker.com/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo
+  yum install -y docker-ce
   echo "DOCKER_NETWORK_OPTIONS='-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'" | sudo tee /etc/sysconfig/docker-network > /dev/null
-  sudo systemctl enable docker && sudo systemctl restart docker
+  sudo mkdir -p /etc/systemd/system/docker.service.d/
+  echo "[Service]" | sudo tee /etc/systemd/system/docker.service.d/service.conf
+  echo "EnvironmentFile=-/etc/sysconfig/docker-network" | sudo tee -a /etc/systemd/system/docker.service.d/service.conf
+  echo "ExecStart=" | sudo tee -a /etc/systemd/system/docker.service.d/service.conf
+  echo "ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock \$DOCKER_NETWORK_OPTIONS" | sudo tee -a /etc/systemd/system/docker.service.d/service.conf
+  sudo systemctl daemon-reload && systemctl enable docker && sudo systemctl restart docker
   echo -e 'export DOCKER_HOST=tcp://127.0.0.1:2375\nunset DOCKER_CERT_PATH\nunset DOCKER_TLS_VERIFY' > /etc/profile.d/docker_TCP.sh
   echo -e 'Run:\n  export DOCKER_HOST=tcp://127.0.0.1:2375 && unset DOCKER_CERT_PATH && unset DOCKER_TLS_VERIFY\nto use docker on the host machine'
 SCRIPT
