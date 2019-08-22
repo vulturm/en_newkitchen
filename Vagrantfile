@@ -136,7 +136,7 @@ SCRIPT
 #--
 install_ANSIBLE = <<SCRIPT
   echo "Installing Ansible Development Environment ..."
-  yum -y install ansible ansible-doc ansible-lint ansible-review standard-test-roles
+  yum -y install ansible ansible-doc ansible-lint
 SCRIPT
 
 #--
