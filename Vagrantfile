@@ -11,7 +11,7 @@ GLOBAL_CONFIGS = {
   #-- Pin those versions
   software_versions: {
     Chef_DK:       '1.2.20',
-    Terraform:     '0.11.11',
+    tfenv:         '1.0.1',
     Packer:        '1.3.2',
     OpenStack_cli: '3.17',
     ShellCheck:    'v0.4.6'
@@ -93,14 +93,15 @@ install_DOCKER = <<SCRIPT
 SCRIPT
 
 #--
-install_TERRAFORM = <<SCRIPT
-  echo "Installing Terraform ..."
-  terraformDir=/opt/terraform
-  mkdir -p $terraformDir
-  wget https://releases.hashicorp.com/terraform/#{GLOBAL_CONFIGS[:software_versions][:Terraform]}/terraform_#{GLOBAL_CONFIGS[:software_versions][:Terraform]}_linux_amd64.zip -O /opt/terraform_#{GLOBAL_CONFIGS[:software_versions][:Terraform]}_linux_amd64.zip
-  unzip -q -o /opt/terraform_#{GLOBAL_CONFIGS[:software_versions][:Terraform]}_linux_amd64.zip -d ${terraformDir}
-  chown -R vagrant:vagrant ${terraformDir}
-  ln -sf ${terraformDir}/terraform /usr/bin/terraform
+install_TFENV = <<SCRIPT
+  echo "Installing TFenv for Terraform ..."
+  tfenvDir=/opt/tfenv
+  mkdir -p $tfenvDir
+  wget https://github.com/vulturm/tfenv/archive/v#{GLOBAL_CONFIGS[:software_versions][:tfenv]}.zip -O /opt/tfenv_#{GLOBAL_CONFIGS[:software_versions][:tfenv]}.zip
+  unzip -q -o /opt/tfenv_#{GLOBAL_CONFIGS[:software_versions][:tfenv]}.zip -d ${tfenvDir}
+  chown -R vagrant:vagrant ${tfenvDir}
+  ln -sf ${tfenvDir}/tfenv-#{GLOBAL_CONFIGS[:software_versions][:tfenv]}/bin/tfenv /usr/bin/tfenv
+  ln -sf ${tfenvDir}/tfenv-#{GLOBAL_CONFIGS[:software_versions][:tfenv]}/bin/terraform /usr/bin/terraform
 SCRIPT
 
 #--
@@ -186,7 +187,7 @@ VIRTUAL_MACHINES = {
     shell_script: [ 
       install_BASE,
       install_DEV,
-      install_TERRAFORM,
+      install_TFENV,
       install_PACKER,
       install_ANSIBLE,
       install_OPENSTACK,
