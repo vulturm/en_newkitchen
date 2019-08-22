@@ -86,7 +86,7 @@ install_DOCKER = <<SCRIPT
   echo "[Service]" | sudo tee /etc/systemd/system/docker.service.d/service.conf
   echo "EnvironmentFile=-/etc/sysconfig/docker-network" | sudo tee -a /etc/systemd/system/docker.service.d/service.conf
   echo "ExecStart=" | sudo tee -a /etc/systemd/system/docker.service.d/service.conf
-  echo "ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock \$DOCKER_NETWORK_OPTIONS" | sudo tee -a /etc/systemd/system/docker.service.d/service.conf
+  echo "ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock \\$DOCKER_NETWORK_OPTIONS" | sudo tee -a /etc/systemd/system/docker.service.d/service.conf
   sudo systemctl daemon-reload && systemctl enable docker && sudo systemctl restart docker
   echo -e 'export DOCKER_HOST=tcp://127.0.0.1:2375\nunset DOCKER_CERT_PATH\nunset DOCKER_TLS_VERIFY' > /etc/profile.d/docker_TCP.sh
   echo -e 'Run:\n  export DOCKER_HOST=tcp://127.0.0.1:2375 && unset DOCKER_CERT_PATH && unset DOCKER_TLS_VERIFY\nto use docker on the host machine'
