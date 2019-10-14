@@ -10,12 +10,13 @@ VAGRANTFILE_API_VERSION = "2"
 GLOBAL_CONFIGS = {
   #-- Pin those versions
   software_versions: {
-    Chef_DK:       '1.2.20',
-    tfenv:         '1.0.1',
-    terragrunt:    '0.20.3',
-    Packer:        '1.3.2',
-    OpenStack_cli: '3.17',
-    ShellCheck:    'v0.4.6'
+    Chef_DK:            '1.2.20',
+    tfenv:              '1.0.1',
+    terragrunt:         '0.20.3',
+    iam_authenticator:  '1.14.6/2019-08-22',
+    Packer:             '1.3.2',
+    OpenStack_cli:      '3.17',
+    ShellCheck:         'v0.4.6'
   },
   #-- customize with those
   transfer_local_files: {
@@ -111,8 +112,19 @@ install_TERRAGRUNT = <<SCRIPT
   terragruntDir=/opt/terragrunt
   mkdir -p $terragruntDir
   wget https://github.com/gruntwork-io/terragrunt/releases/download/v#{GLOBAL_CONFIGS[:software_versions][:terragrunt]}/terragrunt_linux_amd64 -O ${terragruntDir}/terragrunt_#{GLOBAL_CONFIGS[:software_versions][:terragrunt]}
+  chmod +x ${terragruntDir}/terragrunt_#{GLOBAL_CONFIGS[:software_versions][:terragrunt]}
   chown -R vagrant:vagrant ${terragruntDir}
   ln -sf ${terragruntDir}/terragrunt_#{GLOBAL_CONFIGS[:software_versions][:terragrunt]} /usr/bin/terragrunt
+SCRIPT
+
+install_IAM_AUTHENTICATOR = <<SCRIPT
+  echo "Installing AWS IAM Authenticator ..."
+  iam_authenticatorDir=/opt/iam_authenticator
+  mkdir -p $iam_authenticatorDir
+  wget https://amazon-eks.s3-us-west-2.amazonaws.com/#{GLOBAL_CONFIGS[:software_versions][:iam_authenticator]}/bin/linux/amd64/aws-iam-authenticator -O ${iam_authenticatorDir}/aws-iam-authenticator
+  chmod +x ${iam_authenticatorDir}/aws-iam-authenticator
+  chown -R vagrant:vagrant ${iam_authenticatorDir}
+  ln -sf ${iam_authenticatorDir}/aws-iam-authenticator /usr/bin/aws-iam-authenticator
 SCRIPT
 
 #--
@@ -199,6 +211,7 @@ VIRTUAL_MACHINES = {
       install_BASE,
       install_DEV,
       install_TFENV,
+      install_IAM_AUTHENTICATOR,
       install_TERRAGRUNT,
       install_PACKER,
       install_ANSIBLE,
