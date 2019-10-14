@@ -12,6 +12,7 @@ GLOBAL_CONFIGS = {
   software_versions: {
     Chef_DK:       '1.2.20',
     tfenv:         '1.0.1',
+    terragrunt:    '0.20.3',
     Packer:        '1.3.2',
     OpenStack_cli: '3.17',
     ShellCheck:    'v0.4.6'
@@ -45,8 +46,9 @@ end
 
 ####### SCRIPTS
 install_BASE = <<SCRIPT
+  cat /home/vagrant/.ssh/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys
   echo "Installing base ..."
-  yum install -y epel-release redhat-lsb ntpdate
+  yum install -y epel-release redhat-lsb ntpdate rpcbind
   true
   #-- we don't need selinux in dev environments
   setenforce 0
@@ -102,6 +104,15 @@ install_TFENV = <<SCRIPT
   chown -R vagrant:vagrant ${tfenvDir}
   ln -sf ${tfenvDir}/tfenv-#{GLOBAL_CONFIGS[:software_versions][:tfenv]}/bin/tfenv /usr/bin/tfenv
   ln -sf ${tfenvDir}/tfenv-#{GLOBAL_CONFIGS[:software_versions][:tfenv]}/bin/terraform /usr/bin/terraform
+SCRIPT
+
+install_TERRAGRUNT = <<SCRIPT
+  echo "Installing Terragrunt ..."
+  terragruntDir=/opt/terragrunt
+  mkdir -p $terragruntDir
+  wget https://github.com/gruntwork-io/terragrunt/releases/download/v#{GLOBAL_CONFIGS[:software_versions][:terragrunt]}/terragrunt_linux_amd64 -O ${terragruntDir}/terragrunt_#{GLOBAL_CONFIGS[:software_versions][:terragrunt]}
+  chown -R vagrant:vagrant ${terragruntDir}
+  ln -sf ${terragruntDir}/terragrunt_#{GLOBAL_CONFIGS[:software_versions][:terragrunt]} /usr/bin/terragrunt
 SCRIPT
 
 #--
@@ -188,6 +199,7 @@ VIRTUAL_MACHINES = {
       install_BASE,
       install_DEV,
       install_TFENV,
+      install_TERRAGRUNT,
       install_PACKER,
       install_ANSIBLE,
       install_OPENSTACK,
