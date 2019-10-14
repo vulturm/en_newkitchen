@@ -245,6 +245,15 @@ VIRTUAL_MACHINES = {
       install_DEV
     ]
   },
+#   fedora30test: {
+#     vm_box: 'fedora/30-cloud-base',
+# #    vm_box: 'centos/7',
+#     hostname: 'fedora30test.local.lo',
+#     cpus: 2,
+#     memory: 2500,
+#     private_ip: '192.168.199.24',
+#     environment: 'DevOps'
+#   },
 
 }.freeze
 
@@ -258,10 +267,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define name do |vm_config|
       vm_config.berkshelf.enabled = false if Vagrant.has_plugin?('vagrant-berkshelf')
       # private net between
-      vm_config.vm.network 'private_network', virtualbox__intnet: 'intnet'
+#      vm_config.vm.network 'private_network', virtualbox__intnet: 'intnet'
       vm_config.vm.network 'private_network', ip: cfg[:private_ip]
       vm_config.vm.hostname = cfg[:hostname]
-      vm_config.vm.synced_folder "shared/#{name}", '/vagrant', create: true, type: :nfs
+#      vm_config.vm.synced_folder "shared/#{name}", '/vagrant', create: true, type: :nfs
       vm_config.vm.provider 'virtualbox' do |v|
         v.name = cfg[:hostname]
         v.customize ['modifyvm', :id, '--memory', cfg[:memory]]
