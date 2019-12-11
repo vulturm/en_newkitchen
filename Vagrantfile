@@ -294,9 +294,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.name = cfg[:hostname]
         v.customize ['modifyvm', :id, '--memory', cfg[:memory]]
         v.customize ['modifyvm', :id, '--cpus', cfg[:cpus]]
+	# perf
+        v.customize ['modifyvm', :id, '--macaddress1', "auto"]
         v.customize ['modifyvm', :id, '--paravirtprovider', 'default']
         v.customize ['modifyvm', :id, '--ioapic', 'on']
         v.customize ['modifyvm', :id, '--hwvirtex', 'on']
+        v.customize ["modifyvm", :id, "--chipset", "ich9"]
+        # prevent time drift
+        v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 60000]
       end
       #--
       if GLOBAL_CONFIGS[:transfer_local_files]
