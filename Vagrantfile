@@ -12,6 +12,7 @@ GLOBAL_CONFIGS = {
   software_versions: {
     Chef_DK:            '1.2.20',
     tfenv:              '1.0.1',
+    terraform:          '0.12.9',
     terragrunt:         '0.20.3',
     iam_authenticator:  '1.14.6/2019-08-22',
     Packer:             '1.3.2',
@@ -105,6 +106,11 @@ install_TFENV = <<SCRIPT
   chown -R vagrant:vagrant ${tfenvDir}
   ln -sf ${tfenvDir}/tfenv-#{GLOBAL_CONFIGS[:software_versions][:tfenv]}/bin/tfenv /usr/bin/tfenv
   ln -sf ${tfenvDir}/tfenv-#{GLOBAL_CONFIGS[:software_versions][:tfenv]}/bin/terraform /usr/bin/terraform
+
+  # install our desired version of terraform
+  tfenv install #{GLOBAL_CONFIGS[:software_versions][:terraform]}
+  tfenv use #{GLOBAL_CONFIGS[:software_versions][:terraform]}
+
 SCRIPT
 
 install_TERRAGRUNT = <<SCRIPT
