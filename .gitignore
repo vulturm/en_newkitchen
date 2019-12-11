@@ -6,6 +6,8 @@
 .*.sw[a-z]
 *.un~
 pkg/
+.DS_Store
+*.log
 
 # Berkshelf
 .vagrant
