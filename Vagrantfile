@@ -12,6 +12,7 @@ GLOBAL_CONFIGS = {
   software_versions: {
     Chef_DK:            '1.2.20',
     tfenv:              '1.0.1',
+    helm:               '3.1.0',
     terraform:          '0.12.9',
     terragrunt:         '0.20.3',
     iam_authenticator:  '1.14.6/2019-08-22',
@@ -110,7 +111,6 @@ install_TFENV = <<SCRIPT
   # install our desired version of terraform
   tfenv install #{GLOBAL_CONFIGS[:software_versions][:terraform]}
   tfenv use #{GLOBAL_CONFIGS[:software_versions][:terraform]}
-
 SCRIPT
 
 install_TERRAGRUNT = <<SCRIPT
@@ -122,6 +122,21 @@ install_TERRAGRUNT = <<SCRIPT
   chown -R vagrant:vagrant ${terragruntDir}
   ln -sf ${terragruntDir}/terragrunt_#{GLOBAL_CONFIGS[:software_versions][:terragrunt]} /usr/bin/terragrunt
 SCRIPT
+
+#--
+install_HELM = <<SCRIPT
+  echo "Installing Helm ..."
+  helmDir=/opt/helm
+  mkdir -p $helmDir
+  wget https://get.helm.sh/helm-v#{GLOBAL_CONFIGS[:software_versions][:helm]}-linux-amd64.zip -O /opt/helm_#{GLOBAL_CONFIGS[:software_versions][:helm]}.zip
+  unzip -q -o /opt/helm_#{GLOBAL_CONFIGS[:software_versions][:helm]}.zip -d ${helmDir}
+  chown -R vagrant:vagrant ${helmDir}
+  ln -sf ${helmDir}/linux-amd64/helm /usr/bin/helm
+
+SCRIPT
+
+
+
 
 install_IAM_AUTHENTICATOR = <<SCRIPT
   echo "Installing AWS IAM Authenticator ..."
@@ -217,6 +232,7 @@ VIRTUAL_MACHINES = {
       install_BASE,
       install_DEV,
       install_TFENV,
+      install_HELM,
       install_IAM_AUTHENTICATOR,
       install_TERRAGRUNT,
       install_PACKER,
