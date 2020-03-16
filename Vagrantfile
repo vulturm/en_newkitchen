@@ -12,7 +12,7 @@ GLOBAL_CONFIGS = {
   software_versions: {
     Chef_DK:            '1.2.20',
     tfenv:              '1.0.1',
-    helm:               '3.1.0',
+    helm:               '3.1.1',
     terraform:          '0.12.9',
     terragrunt:         '0.20.3',
     iam_authenticator:  '1.14.6/2019-08-22',
@@ -32,7 +32,7 @@ GLOBAL_CONFIGS = {
 }
 
 ####### Vagrant Prerequisites
-required_plugins = %w( vagrant-vbguest )
+required_plugins = %w( vagrant-libvirt)
 if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil then
 	#-- nfs sharing
 	required_plugins.push('vagrant-winnfsd')
@@ -226,6 +226,7 @@ VIRTUAL_MACHINES = {
     hostname: 'workstation.local.lo',
     cpus: 4,
     memory: 2048,
+    provider: 'libvirt',
     private_ip: '192.168.199.30',
     environment: 'DevOps',
     shell_script: [ 
@@ -296,28 +297,61 @@ VIRTUAL_MACHINES = {
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #  config.omnibus.chef_version = '12.8.1'
   config.vbguest.auto_update = false if Vagrant.has_plugin?('vagrant-vbguest')
+  config.vm.synced_folder ".", "/vagrant", :disabled => true
 
   VIRTUAL_MACHINES.each do |name, cfg|
     config.vm.box = cfg[:vm_box]
+
     config.vm.define name do |vm_config|
       vm_config.berkshelf.enabled = false if Vagrant.has_plugin?('vagrant-berkshelf')
       # private net between
-#      vm_config.vm.network 'private_network', virtualbox__intnet: 'intnet'
-      vm_config.vm.network 'private_network', ip: cfg[:private_ip]
+      if cfg[:provider] == 'libvirt'
+        vm_config.vm.network :private_network,
+          ip: cfg[:private_ip],
+          auto_config: false,
+          libvirt__domain_name: cfg[:hostname],
+          libvirt__dhcp_enabled: false,
+          libvirt__forward_mode: "nat"
+      else
+        # vm_config.vm.network 'private_network', virtualbox__intnet: 'intnet'
+        vm_config.vm.network 'private_network', ip: cfg[:private_ip]
+      end
+
       vm_config.vm.hostname = cfg[:hostname]
-#      vm_config.vm.synced_folder "shared/#{name}", '/vagrant', create: true, type: :nfs
-      vm_config.vm.provider 'virtualbox' do |v|
-        v.name = cfg[:hostname]
-        v.customize ['modifyvm', :id, '--memory', cfg[:memory]]
-        v.customize ['modifyvm', :id, '--cpus', cfg[:cpus]]
-	# perf
-        v.customize ['modifyvm', :id, '--macaddress1', "auto"]
-        v.customize ['modifyvm', :id, '--paravirtprovider', 'default']
-        v.customize ['modifyvm', :id, '--ioapic', 'on']
-        v.customize ['modifyvm', :id, '--hwvirtex', 'on']
-        v.customize ["modifyvm", :id, "--chipset", "ich9"]
-        # prevent time drift
-        v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 60000]
+
+      if cfg[:provider] == 'libvirt'
+        config.vm.provider :libvirt do |libvirt|
+          libvirt.host = cfg[:hostname]
+          libvirt.memory = cfg[:memory]
+          libvirt.cpus = cfg[:cpus]
+          libvirt.cpu_mode = "host-passthrough"
+
+          # Use QEMU session instead of system connection
+          libvirt.qemu_use_session = true
+          # URI of QEMU session connection, default is as below
+          libvirt.uri = 'qemu:///session'
+          # URI of QEMU system connection, use to obtain IP address for management, default is below
+          libvirt.system_uri = 'qemu:///system'
+          # Management network device, default is below
+          libvirt.management_network_device = 'virbr0'
+          libvirt.driver = "kvm"
+          libvirt.host = 'localhost'
+          libvirt.uri = 'qemu:///system'
+        end
+      else
+        vm_config.vm.provider 'virtualbox' do |virtualbox|
+          virtualbox.name = cfg[:hostname]
+          virtualbox.customize ['modifyvm', :id, '--memory', cfg[:memory]]
+          virtualbox.customize ['modifyvm', :id, '--cpus', cfg[:cpus]]
+          # perf
+          virtualbox.customize ['modifyvm', :id, '--macaddress1', "auto"]
+          virtualbox.customize ['modifyvm', :id, '--paravirtprovider', 'default']
+          virtualbox.customize ['modifyvm', :id, '--ioapic', 'on']
+          virtualbox.customize ['modifyvm', :id, '--hwvirtex', 'on']
+          virtualbox.customize ["modifyvm", :id, "--chipset", "ich9"]
+          # prevent time drift
+          virtualbox.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 60000]
+        end
       end
       #--
       if GLOBAL_CONFIGS[:transfer_local_files]
