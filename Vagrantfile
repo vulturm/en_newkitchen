@@ -13,6 +13,7 @@ GLOBAL_CONFIGS = {
     Chef_DK:            '1.2.20',
     tfenv:              '1.0.1',
     helm:               '3.1.1',
+    k9s:                '0.19.3',
     terraform:          '0.12.9',
     terragrunt:         '0.20.3',
     iam_authenticator:  '1.14.6/2019-08-22',
@@ -135,8 +136,16 @@ install_HELM = <<SCRIPT
 
 SCRIPT
 
-
-
+install_K9S = <<SCRIPT
+  echo "Installing k9s ..."
+  k9sDir=/opt/k9s
+  mkdir -p $k9sDir
+  wget https://github.com/derailed/k9s/releases/download/v#{GLOBAL_CONFIGS[:software_versions][:k9s]}/k9s_Linux_x86_64.tar.gz -O ${k9sDir}/k9s_#{GLOBAL_CONFIGS[:software_versions][:k9s]}.tar.gz
+  tar -C ${k9sDir} -zxf  ${k9sDir}/k9s_#{GLOBAL_CONFIGS[:software_versions][:k9s]}.tar.gz
+  chmod +x ${k9sDir}/k9s
+  chown -R vagrant:vagrant ${k9sDir}
+  ln -sf ${k9sDir}/k9s /usr/bin/k9s
+SCRIPT
 
 install_IAM_AUTHENTICATOR = <<SCRIPT
   echo "Installing AWS IAM Authenticator ..."
@@ -233,6 +242,7 @@ VIRTUAL_MACHINES = {
       install_BASE,
       install_DEV,
       install_TFENV,
+      install_K9S,
       install_HELM,
       install_IAM_AUTHENTICATOR,
       install_TERRAGRUNT,
