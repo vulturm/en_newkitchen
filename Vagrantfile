@@ -11,6 +11,7 @@ GLOBAL_CONFIGS = {
   #-- Pin those versions
   software_versions: {
     Chef_DK:            '1.2.20',
+    docker_slim:        '1.34.0',
     tfenv:              '1.0.1',
     helm:               '3.1.1',
     k9s:                '0.19.3',
@@ -72,7 +73,7 @@ SCRIPT
 #--
 install_DEV = <<SCRIPT
   echo "Installing DEV ..."
-  yum install -y tmux mc vim-enhanced git svn patch unzip gcc ruby rubygems curl bash-completion strace telnet bind-utils tcpdump nc traceroute telnet whois wget pwkickstart python-boto3
+  yum install -y tmux mc vim-enhanced git svn patch unzip gcc ruby rubygems curl bash-completion strace telnet bind-utils tcpdump nc traceroute telnet whois wget pwkickstart python-boto3 atop
 SCRIPT
 
 #--
@@ -97,6 +98,19 @@ install_DOCKER = <<SCRIPT
   echo -e 'export DOCKER_HOST=tcp://127.0.0.1:2375\nunset DOCKER_CERT_PATH\nunset DOCKER_TLS_VERIFY' > /etc/profile.d/docker_TCP.sh
   echo -e 'Run:\n  export DOCKER_HOST=tcp://127.0.0.1:2375 && unset DOCKER_CERT_PATH && unset DOCKER_TLS_VERIFY\nto use docker on the host machine'
 SCRIPT
+
+install_DOCKERSLIM = <<SCRIPT
+  echo "Installing Docker-slim ..."
+  docker_slimDir=/opt/dockerslim-#{GLOBAL_CONFIGS[:software_versions][:docker_slim]}
+  mkdir -p $docker_slimDir
+  wget https://downloads.dockerslim.com/releases/#{GLOBAL_CONFIGS[:software_versions][:docker_slim]}/dist_linux.tar.gz -O ${docker_slimDir}/docker_slim_#{GLOBAL_CONFIGS[:software_versions][:docker_slim]}.tar.gz
+  tar -C ${docker_slimDir} -zxf  ${docker_slimDir}/docker_slim_#{GLOBAL_CONFIGS[:software_versions][:docker_slim]}.tar.gz
+  chmod +x ${docker_slimDir}/dist_linux/*
+  chown -R vagrant:vagrant ${docker_slimDir}
+  ln -sf ${docker_slimDir}/dist_linux/docker-slim /usr/bin/docker-slim
+  ln -sf ${docker_slimDir}/dist_linux/docker-slim-sensor /usr/bin/docker-slim-sensor
+SCRIPT
+
 
 #--
 install_TFENV = <<SCRIPT
@@ -235,7 +249,7 @@ VIRTUAL_MACHINES = {
     hostname: 'workstation.local.lo',
     cpus: 4,
     memory: 2048,
-    provider: 'libvirt',
+#    provider: 'libvirt',
     private_ip: '192.168.199.30',
     environment: 'DevOps',
     shell_script: [ 
@@ -250,7 +264,8 @@ VIRTUAL_MACHINES = {
       install_ANSIBLE,
       install_OPENSTACK,
       install_BASH,
-      install_DOCKER
+      install_DOCKER,
+      install_DOCKERSLIM
     ]
   },
   node2test: {
