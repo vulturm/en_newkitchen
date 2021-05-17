@@ -32,11 +32,35 @@ export PS1=$LIGHT_GRAY"[\u@\h"'$(
 alias ll='ls -lah'
 
 #-- fix ssh agent for tmux sessions
+function sshagent_findsockets {
+  find /tmp -uid $(id -u) -type s -name agent.\* 2>/dev/null
+}
+
+function sshagent_testsocket {
+  export SSH_AUTH_SOCK=$1
+
+  ssh-add -l 2>&1 /dev/null
+  if [[ $? -ne 0 ]] ; then
+    echo "Socket $SSH_AUTH_SOCK is dead!  Deleting!"
+    rm -f $SSH_AUTH_SOCK
+  else
+    return 0
+  fi
+  return 4
+}
+
 fixssh() {
-  for key in SSH_AUTH_SOCK SSH_CONNECTION SSH_CLIENT; do
-    if (tmux show-environment | grep "^${key}" > /dev/null); then
-      value=`tmux show-environment | grep "^${key}" | sed -e "s/^[A-Z_]*=//"`
-      export ${key}="${value}"
+  if [[ ! -x "$(which ssh-add)" ]]; then
+    echo "ssh-add is not available; agent testing aborted"
+    return 1
+  fi
+
+  for sshagent_potential_socket in $(sshagent_findsockets) ; do
+    echo "Testing $sshagent_potential_socket"
+    if [[ $(sshagent_testsocket $sshagent_potential_socket) ]]; then
+      echo "Found ssh-agent $SSH_AUTH_SOCK"
+      export SSH_AUTH_SOCK=$sshagent_potential_socket
+      break
     fi
   done
 }
