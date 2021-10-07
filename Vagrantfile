@@ -15,7 +15,7 @@ GLOBAL_CONFIGS = {
     tfenv:              '1.0.1',
     helm:               '3.1.1',
     k9s:                '0.19.3',
-    terraform:          '0.12.9',
+    terraform:          '0.13.5',
     terragrunt:         '0.20.3',
     iam_authenticator:  '1.14.6/2019-08-22',
     Packer:             '1.3.2',
