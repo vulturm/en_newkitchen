@@ -375,6 +375,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           virtualbox.customize ['modifyvm', :id, '--hwvirtex', 'on']
           virtualbox.customize ["modifyvm", :id, "--chipset", "ich9"]
           # prevent time drift
+          virtualbox.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-interval", 10000]
+          virtualbox.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-min-adjust", 100]
+          virtualbox.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-on-restore", 1]
           virtualbox.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 60000]
         end
       end
