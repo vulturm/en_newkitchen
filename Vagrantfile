@@ -247,8 +247,8 @@ VIRTUAL_MACHINES = {
   workstation: {
     vm_box: 'centos/7',
     hostname: 'workstation.local.lo',
-    cpus: 4,
-    memory: 2048,
+    cpus: 6,
+    memory: 4096,
 #    provider: 'libvirt',
     private_ip: '192.168.199.30',
     environment: 'DevOps',
