@@ -34,10 +34,44 @@ GLOBAL_CONFIGS = {
 }
 
 ####### Vagrant Prerequisites
-required_plugins = %w( vagrant-libvirt)
-if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil then
+module OS
+    def OS.windows?
+        (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+    end
+
+    def OS.mac?
+        (/darwin/ =~ RUBY_PLATFORM) != nil
+    end
+
+    def OS.unix?
+        !OS.windows?
+    end
+
+    def OS.linux?
+        OS.unix? and not OS.mac?
+    end
+end
+
+
+virt_hypervisor = 'virtualbox '
+detected_os = 'linux'
+required_plugins = %w( )
+
+if OS.mac? then
+	virt_hypervisor = 'virtualbox '
+	detected_os = 'macos'
+end
+
+if OS.linux? then
+	required_plugins.push('vagrant-libvirt')
+	virt_hypervisor = 'libvirt'
+	detected_os = 'linux'
+end
+
+if OS.windows? then
 	#-- nfs sharing
 	required_plugins.push('vagrant-winnfsd')
+	detected_os = 'windows'
 end
 
 required_plugins.each do |plugin|
@@ -48,6 +82,9 @@ def file_dir_or_symlink_exists?(path_to_file)
   File.exist?(File.expand_path(path_to_file)) || File.symlink?(File.expand_path(path_to_file))
 end
 
+######
+puts "Detected OS: #{detected_os}"
+puts "Using Hypervisor: #{virt_hypervisor}"
 
 ####### SCRIPTS
 install_BASE = <<SCRIPT
@@ -249,7 +286,7 @@ VIRTUAL_MACHINES = {
     hostname: 'workstation.local.lo',
     cpus: 6,
     memory: 4096,
-#    provider: 'libvirt',
+    provider: virt_hypervisor,
     private_ip: '192.168.199.30',
     environment: 'DevOps',
     shell_script: [ 
@@ -273,6 +310,7 @@ VIRTUAL_MACHINES = {
     hostname: 'node2test.local.lo',
     cpus: 2,
     memory: 1024,
+    provider: virt_hypervisor,
     private_ip: '192.168.199.21',
     environment: 'DevOps',
     shell_script: [
@@ -286,6 +324,7 @@ VIRTUAL_MACHINES = {
     hostname: 'icinga2test.local.lo',
     cpus: 1,
     memory: 1024,
+    provider: virt_hypervisor,
     private_ip: '192.168.199.22',
     environment: 'DevOps',
     shell_script: [
@@ -299,6 +338,7 @@ VIRTUAL_MACHINES = {
     hostname: 'centos7test.local.lo',
     cpus: 2,
     memory: 1000,
+    provider: virt_hypervisor,
     private_ip: '192.168.199.23',
     environment: 'DevOps',
     shell_script: [
