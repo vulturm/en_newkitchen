@@ -55,7 +55,7 @@ end
 
 virt_hypervisor = 'virtualbox '
 detected_os = 'linux'
-required_plugins = %w( )
+required_plugins = %w(vagrant-vbguest)
 
 if OS.mac? then
 	virt_hypervisor = 'virtualbox '
@@ -311,6 +311,7 @@ VIRTUAL_MACHINES = {
     cpus: 2,
     memory: 1024,
     provider: virt_hypervisor,
+    sync_folder: '/Users/mihaiv2/Downloads',
     private_ip: '192.168.199.21',
     environment: 'DevOps',
     shell_script: [
@@ -366,6 +367,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   VIRTUAL_MACHINES.each do |name, cfg|
     config.vm.box = cfg[:vm_box]
+      if cfg[:sync_folder] then
+	if OS.mac? then
+	  config.vm.synced_folder cfg[:sync_folder], "/vagrant", type: "nfs"
+	end
+      end
 
     config.vm.define name do |vm_config|
       vm_config.berkshelf.enabled = false if Vagrant.has_plugin?('vagrant-berkshelf')
@@ -381,7 +387,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         # vm_config.vm.network 'private_network', virtualbox__intnet: 'intnet'
         vm_config.vm.network 'private_network', ip: cfg[:private_ip]
       end
-
       vm_config.vm.hostname = cfg[:hostname]
 
       if cfg[:provider] == 'libvirt'
